@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Jed
   m_EditorClassIdentifier: 
   m_Sprite: {fileID: 7482667652216324306, guid: 65e3bde435bb84b4698cde2e55c7564c, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 0, b: 0, a: 1}
   m_Transform:
     e00: 1
     e01: 0
