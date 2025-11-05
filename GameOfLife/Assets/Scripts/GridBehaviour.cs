@@ -42,15 +42,6 @@ public class GridBehaviour : MonoBehaviour
 
     }
 
-    private void Clear()
-    {
-        aliveCells.Clear();
-        cellsToCheck.Clear();
-        currentState.ClearAllTiles();
-        nextState.ClearAllTiles();
-    }
-
-
     private void OnEnable()
     {
         StartCoroutine(Simulate());
@@ -73,7 +64,20 @@ public class GridBehaviour : MonoBehaviour
     {
         cellsToCheck.Clear();
 
-        Debug.Log("Updating state...");
+        CalculateCellsToCheck();
+
+        foreach (Vector3Int cell in cellsToCheck)
+        {
+            int neighbours = CalculateNeighbours(cell);
+            bool isAlive = CellIsAlive(cell);
+            ComputeAlgorithm(neighbours, isAlive, cell);
+        }
+
+        SwapStates();
+    }
+
+    private void CalculateCellsToCheck()
+    {
         foreach (Vector3Int cell in aliveCells)
         {
             for (int x = -1; x <= 1; x++)
@@ -84,58 +88,74 @@ public class GridBehaviour : MonoBehaviour
                 }
             }
         }
+    }
 
-        Debug.Log($"Finished calculating cells to check. There are {cellsToCheck.Count} for this cycle");
+    private int CalculateNeighbours(Vector3Int cell)
+    {
+        int neighbours = 0;
 
-
-        foreach (Vector3Int cell in cellsToCheck)
+        for (int x = -1; x <= 1; x++)
         {
-            int neighbours = 0;
-
-            for (int x = -1; x <= 1; x++)
+            for (int y = -1; y <= 1; y++)
             {
-                for (int y = -1; y <= 1; y++)
+                Vector3Int neighbour = cell + new Vector3Int(x, y);
+                if (CheckingCurrentCell(x, y))
                 {
-                    Vector3Int neighbour = cell + new Vector3Int(x, y);
-                    if (x == 0 && y == 0)
-                    {
-                        continue;
-                    }
-                    if (currentState.GetTile(neighbour) == aliveTile)
-                    {
-                        neighbours++;
-                    }
+                    continue;
                 }
-            }
-
-            bool isAlive = currentState.GetTile(cell) == aliveTile;
-
-            Debug.Log($"Alive ? {isAlive}");
-
-            if ((neighbours < 2 || neighbours > 3) && isAlive)
-            {
-                nextState.SetTile(cell, jedTile);
-                aliveCells.Remove(cell);
-
-            }
-            else if (!isAlive && neighbours == 3)
-            {
-                nextState.SetTile(cell, aliveTile);
-                aliveCells.Add(cell);
-            }
-            else
-            {
-                nextState.SetTile(cell, currentState.GetTile(cell));
+                if (CellIsAlive(neighbour))
+                {
+                    neighbours++;
+                }
             }
         }
 
-        Debug.Log($"Finished calculating alive / dead cells for next cyle there are {aliveCells.Count} for the next cycle");
+        return neighbours;
+    }
 
+    private void ComputeAlgorithm(int neighbours, bool isAlive, Vector3Int cell)
+    {
+        if ((neighbours < 2 || neighbours > 3) && isAlive)
+        {
+            nextState.SetTile(cell, jedTile);
+            aliveCells.Remove(cell);
+
+        }
+        else if (!isAlive && neighbours == 3)
+        {
+            nextState.SetTile(cell, aliveTile);
+            aliveCells.Add(cell);
+        }
+        else
+        {
+            nextState.SetTile(cell, currentState.GetTile(cell));
+        }
+    }
+
+    private void SwapStates()
+    {
         Tilemap temp = currentState;
         currentState = nextState;
         nextState = temp;
         nextState.ClearAllTiles();
+    }
 
+    private void Clear()
+    {
+        aliveCells.Clear();
+        cellsToCheck.Clear();
+        currentState.ClearAllTiles();
+        nextState.ClearAllTiles();
+    }
+
+    private bool CellIsAlive(Vector3Int cell)
+    {
+        return currentState.GetTile(cell) == aliveTile;
+    }
+
+    private bool CheckingCurrentCell(int x, int y)
+    {
+        return x == 0 & y == 0;
     }
 
 }
