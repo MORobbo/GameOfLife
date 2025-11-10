@@ -16,7 +16,7 @@ public class GridBehaviour : MonoBehaviour
     [SerializeField] private Tile aliveTile;
     [SerializeField] private Tile jedTile;
     [SerializeField] private Pattern pattern;
-    [SerializeField] private float updateInterval = 0.05f;
+    [SerializeField] private float updateInterval = 10f;
 
     private void Awake()
     {
