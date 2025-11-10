@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Tilemaps;
+using Colour = UnityEngine.Color;
 
 public class GridBehaviour : MonoBehaviour
 {
@@ -17,12 +18,32 @@ public class GridBehaviour : MonoBehaviour
     [SerializeField] private Pattern pattern;
     [SerializeField] private float updateInterval = 0.05f;
 
-
-
-
     private void Awake()
     {
         SetPattern(pattern);
+    }
+
+    public Colour RandomTileColour()
+    {
+        var values = Enum.GetValues(typeof(TileColour));
+        int index = UnityEngine.Random.Range(0, values.Length);
+
+        return ToUnityColour((TileColour)values.GetValue(index));
+
+    }
+
+    public Colour ToUnityColour(TileColour tc)
+    {
+        return tc switch
+        {
+            TileColour.Red => Colour.red,
+            TileColour.Green => Colour.green,
+            TileColour.Blue => Colour.blue,
+            TileColour.Yellow => Colour.yellow,
+            TileColour.Cyan => Colour.cyan,
+            TileColour.Magenta => Colour.magenta,
+            _ => Colour.white
+        };
     }
 
     private void SetPattern(Pattern pattern)
@@ -62,8 +83,8 @@ public class GridBehaviour : MonoBehaviour
 
     private void UpdateState()
     {
-        cellsToCheck.Clear();
 
+        cellsToCheck.Clear();
         CalculateCellsToCheck();
 
         foreach (Vector3Int cell in cellsToCheck)
@@ -123,6 +144,7 @@ public class GridBehaviour : MonoBehaviour
         }
         else if (!isAlive && neighbours == 3)
         {
+            aliveTile.color = RandomTileColour();
             nextState.SetTile(cell, aliveTile);
             aliveCells.Add(cell);
         }
