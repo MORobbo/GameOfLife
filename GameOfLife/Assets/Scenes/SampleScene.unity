@@ -152,8 +152,7 @@ MonoBehaviour:
   currentState: {fileID: 474227007}
   nextState: {fileID: 350055834}
   aliveTile: {fileID: 11400000, guid: fa9aa8e5c0084e54e957f1684a86c235, type: 2}
-  jedTile: {fileID: 11400000, guid: 8cfbb4ee9a1ea6b42bf23aae569effeb, type: 2}
-  pattern: {fileID: 11400000, guid: 92a44c4fa774bcc4590ff68f82bc7b4d, type: 2}
+  jedTile: {fileID: 0}
   updateInterval: 0.05
   PlayButton: {fileID: 380056446}
 --- !u!156049354 &233859601
