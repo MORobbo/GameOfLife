@@ -18,15 +18,15 @@ public class GridBehaviour : MonoBehaviour
     [SerializeField] private Tile jedTile;
     [SerializeField] private float updateInterval = 10f;
     [SerializeField] private Button PlayButton;
-    private bool play;
+    private bool playing;
 
 
     private void Awake()
     {
         PlayButton.onClick.AddListener(() =>
         {
-            play = !play;
-            if (!play)  //When its toggled 
+            playing = !playing;
+            if (!playing)  //When its toggled 
             {
                 Clear();
             }
@@ -37,19 +37,14 @@ public class GridBehaviour : MonoBehaviour
 
     private void FixedUpdate()
     {
-
-        if (true)
+        if (Input.GetMouseButton(0) && !playing)
         {
-            if (Input.GetMouseButton(0))
+            Vector3Int cell;
+            if (ShouldCreateTile(out cell))
             {
-
-                Vector3Int cell;
-                if (ShouldCreateTile(out cell))
-                {
-                    aliveTile.color = RandomTileColour();
-                    currentState.SetTile(cell, aliveTile);
-                    aliveCells.Add(cell);
-                }
+                aliveTile.color = RandomTileColour();
+                currentState.SetTile(cell, aliveTile);
+                aliveCells.Add(cell);
             }
         }
     }
@@ -94,7 +89,7 @@ public class GridBehaviour : MonoBehaviour
         var interval = new WaitForSeconds(updateInterval);
         yield return interval;
 
-        while (play)
+        while (playing)
         {
             UpdateState();
 
