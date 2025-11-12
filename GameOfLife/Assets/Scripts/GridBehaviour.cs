@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Tilemaps;
+using UnityEngine.UI;
 using Colour = UnityEngine.Color;
 
 public class GridBehaviour : MonoBehaviour
@@ -17,12 +18,37 @@ public class GridBehaviour : MonoBehaviour
     [SerializeField] private Tile jedTile;
     [SerializeField] private Pattern pattern;
     [SerializeField] private float updateInterval = 10f;
+    [SerializeField] private Button PlayButton;
+    private bool play;
+
 
     private void Awake()
     {
+        PlayButton.onClick.AddListener(() =>
+        {
+            play = !play;
+            StartCoroutine(Simulate());
+        });
+
+        play = false;
         SetPattern(pattern);
     }
 
+    private void FixedUpdate()
+    {
+        if (play)
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                Debug.Log("Pressed left-click.");
+                Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                Vector3Int cell = currentState.WorldToCell(mouseWorldPos);
+                aliveTile.color = RandomTileColour();
+                currentState.SetTile(cell, aliveTile);
+                aliveCells.Add(cell);
+            }
+        }
+    }
     public Colour RandomTileColour()
     {
         var values = Enum.GetValues(typeof(TileColour));
@@ -63,17 +89,13 @@ public class GridBehaviour : MonoBehaviour
 
     }
 
-    private void OnEnable()
-    {
-        StartCoroutine(Simulate());
-    }
 
     private IEnumerator Simulate()
     {
         var interval = new WaitForSeconds(updateInterval);
         yield return interval;
 
-        while (enabled)
+        while (play)
         {
             UpdateState();
 
@@ -81,18 +103,6 @@ public class GridBehaviour : MonoBehaviour
         }
     }
 
-    private void FixedUpdate()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            Debug.Log("Pressed left-click.");
-            Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector3Int cell = currentState.WorldToCell(mouseWorldPos);
-            aliveTile.color = RandomTileColour();
-            currentState.SetTile(cell, aliveTile);
-            aliveCells.Add(cell);
-        }
-    }
 
     private void UpdateState()
     {
