@@ -81,6 +81,19 @@ public class GridBehaviour : MonoBehaviour
         }
     }
 
+    private void FixedUpdate()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            Debug.Log("Pressed left-click.");
+            Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Vector3Int cell = currentState.WorldToCell(mouseWorldPos);
+            aliveTile.color = RandomTileColour();
+            currentState.SetTile(cell, aliveTile);
+            aliveCells.Add(cell);
+        }
+    }
+
     private void UpdateState()
     {
 
