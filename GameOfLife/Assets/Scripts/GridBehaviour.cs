@@ -16,7 +16,6 @@ public class GridBehaviour : MonoBehaviour
     [SerializeField] private Tilemap nextState;
     [SerializeField] private Tile aliveTile;
     [SerializeField] private Tile jedTile;
-    [SerializeField] private Pattern pattern;
     [SerializeField] private float updateInterval = 10f;
     [SerializeField] private Button PlayButton;
     private bool play;
@@ -27,27 +26,45 @@ public class GridBehaviour : MonoBehaviour
         PlayButton.onClick.AddListener(() =>
         {
             play = !play;
+            if (!play)  //When its toggled 
+            {
+                Clear();
+            }
             StartCoroutine(Simulate());
         });
 
-        play = false;
-        SetPattern(pattern);
     }
 
     private void FixedUpdate()
     {
-        if (play)
+
+        if (true)
         {
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetMouseButton(0))
             {
-                Debug.Log("Pressed left-click.");
-                Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                Vector3Int cell = currentState.WorldToCell(mouseWorldPos);
-                aliveTile.color = RandomTileColour();
-                currentState.SetTile(cell, aliveTile);
-                aliveCells.Add(cell);
+
+                Vector3Int cell;
+                if (ShouldCreateTile(out cell))
+                {
+                    aliveTile.color = RandomTileColour();
+                    currentState.SetTile(cell, aliveTile);
+                    aliveCells.Add(cell);
+                }
             }
         }
+    }
+
+    private bool ShouldCreateTile(out Vector3Int cell)
+    {
+        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector3 buttonPos = PlayButton.transform.position;
+        cell = currentState.WorldToCell(mouseWorldPos);
+
+        if (!CellIsAlive(cell) & Vector3.Distance(mouseWorldPos, buttonPos) > 0.5f)
+        {
+            return true;
+        }
+        return false;
     }
     public Colour RandomTileColour()
     {
@@ -72,24 +89,6 @@ public class GridBehaviour : MonoBehaviour
         };
     }
 
-    private void SetPattern(Pattern pattern)
-    {
-        Clear();
-
-        Vector2Int center = pattern.GetCenter();
-
-        for (int i = 0; i < pattern.cells.Length; i++)
-        {
-            Vector3Int cell = (Vector3Int)(pattern.cells[i] - center);
-            currentState.SetTile(cell, aliveTile);
-            aliveCells.Add(cell);
-        }
-
-        Debug.Log($"Pattern has been set. There are {aliveCells.Count} cells alive in this pattern.");
-
-    }
-
-
     private IEnumerator Simulate()
     {
         var interval = new WaitForSeconds(updateInterval);
@@ -102,7 +101,6 @@ public class GridBehaviour : MonoBehaviour
             yield return interval;
         }
     }
-
 
     private void UpdateState()
     {
