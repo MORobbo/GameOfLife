@@ -16,10 +16,11 @@ public class GridBehaviour : MonoBehaviour
     [SerializeField] private Tilemap nextState;
     [SerializeField] private Tile aliveTile;
     [SerializeField] private Tile jedTile;
-    [SerializeField] private float updateInterval = 10f;
     [SerializeField] private Button PlayButton;
     private bool playing;
     private Coroutine simulateRoutine;
+
+    private float updateInterval = 0.1f;
 
 
     private void Awake()
