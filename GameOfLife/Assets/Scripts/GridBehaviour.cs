@@ -19,6 +19,7 @@ public class GridBehaviour : MonoBehaviour
     [SerializeField] private float updateInterval = 10f;
     [SerializeField] private Button PlayButton;
     private bool playing;
+    private Coroutine simulateRoutine;
 
 
     private void Awake()
@@ -26,11 +27,21 @@ public class GridBehaviour : MonoBehaviour
         PlayButton.onClick.AddListener(() =>
         {
             playing = !playing;
-            if (!playing)  //When its toggled 
+
+            if (playing && simulateRoutine == null)
+            {
+                simulateRoutine = StartCoroutine(Simulate());
+            }
+            else
             {
                 Clear();
+                if (simulateRoutine != null)
+                {
+                    StopCoroutine(simulateRoutine);
+                    simulateRoutine = null;
+                }
             }
-            StartCoroutine(Simulate());
+
         });
 
     }
