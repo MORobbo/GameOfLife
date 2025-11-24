@@ -130,6 +130,7 @@ GameObject:
   - component: {fileID: 233859602}
   - component: {fileID: 233859601}
   - component: {fileID: 233859600}
+  - component: {fileID: 233859603}
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
@@ -154,6 +155,7 @@ MonoBehaviour:
   aliveTile: {fileID: 11400000, guid: fa9aa8e5c0084e54e957f1684a86c235, type: 2}
   jedTile: {fileID: 0}
   PlayButton: {fileID: 380056446}
+  m_playing: 0
 --- !u!156049354 &233859601
 Grid:
   m_ObjectHideFlags: 0
@@ -183,6 +185,18 @@ Transform:
   - {fileID: 350055836}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &233859603
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 233859599}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 217a025eead2357469de2986fe2fee56, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &303996256
 GameObject:
   m_ObjectHideFlags: 0
