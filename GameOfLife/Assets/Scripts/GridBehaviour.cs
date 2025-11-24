@@ -7,9 +7,10 @@ using UnityEngine.Tilemaps;
 using UnityEngine.UI;
 using Colour = UnityEngine.Color;
 
-public class GridBehaviour : MonoBehaviour
+public class GridBehaviour : MonoBehaviour, IGrid
 {
 
+    bool IGrid.Playing => m_playing;
     private readonly HashSet<Vector3Int> aliveCells = new();
     private readonly HashSet<Vector3Int> cellsToCheck = new();
     [SerializeField] private Tilemap currentState;
@@ -17,19 +18,18 @@ public class GridBehaviour : MonoBehaviour
     [SerializeField] private Tile aliveTile;
     [SerializeField] private Tile jedTile;
     [SerializeField] private Button PlayButton;
-    private bool playing;
+    public bool m_playing;
     private Coroutine simulateRoutine;
-
+    private float accelerometerSpeed;
     private float updateInterval = 0.1f;
-
 
     private void Awake()
     {
         PlayButton.onClick.AddListener(() =>
         {
-            playing = !playing;
+            m_playing = !m_playing;
 
-            if (playing && simulateRoutine == null)
+            if (m_playing && simulateRoutine == null)
             {
                 simulateRoutine = StartCoroutine(Simulate());
             }
@@ -47,9 +47,11 @@ public class GridBehaviour : MonoBehaviour
 
     }
 
+
+
     private void FixedUpdate()
     {
-        if (Input.GetMouseButton(0) && !playing)
+        if (Input.GetMouseButton(0) && !m_playing)
         {
             Vector3Int cell;
             if (ShouldCreateTile(out cell))
@@ -101,7 +103,7 @@ public class GridBehaviour : MonoBehaviour
         var interval = new WaitForSeconds(updateInterval);
         yield return interval;
 
-        while (playing)
+        while (m_playing)
         {
             UpdateState();
 
@@ -190,7 +192,7 @@ public class GridBehaviour : MonoBehaviour
         nextState.ClearAllTiles();
     }
 
-    private void Clear()
+    public void Clear()
     {
         aliveCells.Clear();
         cellsToCheck.Clear();
