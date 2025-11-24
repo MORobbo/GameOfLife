@@ -10,19 +10,14 @@ public class AccelerometerController : MonoBehaviour
         m_gridBehaviours = GetComponent<IGrid>();
     }
 
-    void Update()
+    void FixedUpdate()
     {
         Vector3 dir = Vector3.zero;
-
         dir.x = -Input.acceleration.y;
         dir.z = Input.acceleration.x;
+        float magnitude = Input.acceleration.magnitude;
 
-        if (dir.sqrMagnitude > 1)
-            dir.Normalize();
-
-        dir *= Time.deltaTime;
-
-        if (m_gridBehaviours.Playing && (dir.x > 0 || dir.y > 0))
+        if (magnitude > 2.0f)
         {
             m_gridBehaviours.Clear();
         }
