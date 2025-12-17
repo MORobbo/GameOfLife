@@ -2,111 +2,114 @@ using UnityEngine;
 
 public class SandGridBehaviour : MonoBehaviour
 {
-    public int width = 200;
-    public int height = 200;
-    public Color sandColor = new Color(0.9f, 0.85f, 0.6f);
-    public Color emptyColor = Color.black;
+    public int gridWidth = 50;
+    public int gridHeight = 50;
+    public Color sandCol = Color.cyan;
+    public Color backgroundCol = Color.black;
 
-    enum CellType { Empty, Sand }
-    CellType[,] grid;
+    private enum Tile { Empty, Sand }
+    private Tile[,] cells;
 
-    Texture2D tex;
-    SpriteRenderer sr;
+    private Texture2D texture;
+    private SpriteRenderer renderer2D;
 
-    void Start()
+    void Awake()
     {
-        grid = new CellType[width, height];
-        sr = GetComponent<SpriteRenderer>();
-        if (sr == null)
-        {
-            Debug.LogError("Add a SpriteRenderer to this GameObject.");
-            return;
-        }
-        tex = new Texture2D(width, height, TextureFormat.RGBA32, false);
-        sr.sprite = Sprite.Create(tex, new Rect(0, 0, width, height), new Vector2(0.5f, 0.5f), 1f);
-        ClearGrid();
+        cells = new Tile[gridWidth, gridHeight];
+
+        renderer2D = GetComponent<SpriteRenderer>();
+        texture = new Texture2D(gridWidth, gridHeight, TextureFormat.RGBA32, false);
+
+        renderer2D.sprite = Sprite.Create(
+            texture,
+            new Rect(0, 0, gridWidth, gridHeight),
+            Vector2.one * 0.5f,
+            1f
+        );
+
+        ResetGrid();
     }
 
     void Update()
     {
-        HandleInput();
-        UpdateSandSimulation();
-        RenderGrid();
+        PlaceSand();
+        Simulate();
+        Draw();
     }
 
-    void ClearGrid()
+    void ResetGrid()
     {
-        for (int x = 0; x < width; x++)
-            for (int y = 0; y < height; y++)
-                grid[x, y] = CellType.Empty;
+        for (int x = 0; x < gridWidth; x++)
+            for (int y = 0; y < gridHeight; y++)
+                cells[x, y] = Tile.Empty;
     }
 
-    void HandleInput()
+    void PlaceSand()
     {
-        if (Input.GetMouseButton(0))
+        if (!Input.GetMouseButton(0)) return;
+
+        Vector2 worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+        int gx = Mathf.FloorToInt(worldPos.x + gridWidth * 0.5f);
+        int gy = Mathf.FloorToInt(worldPos.y + gridHeight * 0.5f);
+
+        if (InBounds(gx, gy))
+            cells[gx, gy] = Tile.Sand;
+    }
+
+    void Simulate()
+    {
+        for (int y = 1; y < gridHeight; y++)
         {
-            Vector2 wp = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-
-            int x = Mathf.FloorToInt(wp.x + width / 2f);
-            int y = Mathf.FloorToInt(wp.y + height / 2f);
-
-            if (x >= 0 && x < width && y >= 0 && y < height)
-                grid[x, y] = CellType.Sand;
-        }
-    }
-
-    void UpdateSandSimulation()
-    {
-
-        for (int y = 1; y < height; y++)
-        {
-            for (int x = 0; x < width; x++)
+            for (int x = 0; x < gridWidth; x++)
             {
-                if (grid[x, y] == CellType.Sand)
-                    TryMoveSand(x, y);
+                if (cells[x, y] == Tile.Sand)
+                    MoveSand(x, y);
             }
         }
     }
 
-    void TryMoveSand(int x, int y)
+    void MoveSand(int x, int y)
     {
-        if (IsEmpty(x, y - 1))
-        {
-            Swap(x, y, x, y - 1);
-        }
-        else if (IsEmpty(x - 1, y - 1))
-        {
-            Swap(x, y, x - 1, y - 1);
-        }
-        else if (IsEmpty(x + 1, y - 1))
-        {
-            Swap(x, y, x + 1, y - 1);
-        }
+        if (CanMoveTo(x, y - 1))
+            Exchange(x, y, x, y - 1);
+        else if (CanMoveTo(x - 1, y - 1))
+            Exchange(x, y, x - 1, y - 1);
+        else if (CanMoveTo(x + 1, y - 1))
+            Exchange(x, y, x + 1, y - 1);
     }
 
-    bool IsEmpty(int x, int y)
+    bool CanMoveTo(int x, int y)
     {
-        if (x < 0 || x >= width || y < 0 || y >= height) return false;
-        return grid[x, y] == CellType.Empty;
+        return InBounds(x, y) && cells[x, y] == Tile.Empty;
     }
 
-    void Swap(int x1, int y1, int x2, int y2)
+    bool InBounds(int x, int y)
     {
-        var t = grid[x1, y1];
-        grid[x1, y1] = grid[x2, y2];
-        grid[x2, y2] = t;
+        return x >= 0 && x < gridWidth && y >= 0 && y < gridHeight;
     }
 
-    void RenderGrid()
+    void Exchange(int xA, int yA, int xB, int yB)
     {
-        for (int y = 0; y < height; y++)
+        Tile temp = cells[xA, yA];
+        cells[xA, yA] = cells[xB, yB];
+        cells[xB, yB] = temp;
+    }
+
+    void Draw()
+    {
+        for (int x = 0; x < gridWidth; x++)
         {
-            for (int x = 0; x < width; x++)
+            for (int y = 0; y < gridHeight; y++)
             {
-                tex.SetPixel(x, y,
-                    (grid[x, y] == CellType.Sand) ? sandColor : emptyColor);
+                texture.SetPixel(
+                    x,
+                    y,
+                    cells[x, y] == Tile.Sand ? sandCol : backgroundCol
+                );
             }
         }
-        tex.Apply();
+
+        texture.Apply();
     }
 }
